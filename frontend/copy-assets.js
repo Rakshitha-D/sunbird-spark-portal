@@ -109,11 +109,12 @@ try {
     fs.mkdirSync(qumlFinalDest, { recursive: true });
     console.log('📦 Copying QUML player files to public/assets/quml-player/...');
     copyDirectory(qumlAssetsSource, qumlFinalDest);
-    // The QuML editor's preview requests styles as <bundle>-styles.css next
-    // to the script — expose the package's styles.css under that name too.
-    const qumlStyles = path.join(qumlFinalDest, 'styles.css');
-    if (fs.existsSync(qumlStyles)) {
-        fs.copyFileSync(qumlStyles, path.join(qumlFinalDest, 'sunbird-quml-player-styles.css'));
+    // Deliberately NO sunbird-quml-player-styles.css alias: the React player
+    // styles itself in shadow DOM, and its styles.css carries a global reset
+    // that breaks the editor layout if the editor's preview loader links it.
+    const staleAlias = path.join(qumlFinalDest, 'sunbird-quml-player-styles.css');
+    if (fs.existsSync(staleAlias)) {
+        fs.unlinkSync(staleAlias);
     }
 
     // 7. QUML Editor — handled by Vite as a React library import, no copy needed.
